@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!--Import Google Icon Font-->
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <!-- loading the minified version -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/ipfs/dist/index.min.js"></script>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+    <nav class="green">
+        <div class="nav-wrapper">
+            <a class="brand-logo center"><i class="material-icons">forum</i> TogetherStory</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class=" center row">
+            <div class="">
+                <h5></h5>
+                <div class="row">
+                    <p id="story" style="font-size: 2rem"></p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">textsms</i>
+                        <textarea id="textarea1" class="materialize-textarea"></textarea>
+                        <label for="textarea1">Add your own piece. How will it continue?</label>
+                    </div>
+                </div>
+            </form>
+            <div class="row center">
+                <button class="btn waves-effect waves-light" type="submit" name="action" onclick="appendStory()">Submit your next piece of story
+                    <i class="material-icons right">send</i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="container">
+        <div class="center">
+            <h2>Vote how the story should continue</h2>
+            <h3>This round ends in 6 blocks</h3>
+        </div>
+        <div class="" id="actuals"></div>
+    </div>
+    <footer class="page-footer green">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">This is group game about building a story together</h5>
+                    <p class="grey-text text-lighten-4">The story is set at the beginning. Each round, players can submit idea for the continuation of the story. Submission with the most vote won and is added at the end of the story when the round end. Then the cycle restarts again.</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © 2018 with &#9829; from Earth
+                <a class="grey-text text-lighten-4 right" href="https://www.linkedin.com/in/batrla/">Developed by Tomas Batrla</a>
+            </div>
+        </div>
+    </footer>
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <!--<script src="./node_modules/web3/dist/web3.min.js"></script>-->
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    <script type="text/javascript">
+    const node = new Ipfs({ repo: 'ipfs-' + Math.random() })
+    node.once('ready', () => {
+        console.log('Online status: ', node.isOnline() ? 'online' : 'offline')
+        //document.getElementById("status").innerHTML = 'Node status: ' + (node.isOnline() ? 'online' : 'offline')
+        // You can write more code here to use it. Use methods like 
+        // node.files.add, node.files.get. See the API docs here:
+        // https://github.com/ipfs/interface-ipfs-core
+
+    })
+    </script>
+    <script>
+    if (typeof web3 !== 'undefined') {
+
+        web3 = new Web3(web3.currentProvider);
+    } else {
+        // set the provider you want from Web3.providers
+
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    }
+
+    // Previous if/else statement removed for brevity
+
+    web3.eth.defaultAccount = web3.eth.accounts[0];
+    var StoryContract = web3.eth.contract([
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "getVotesForString",
+        "outputs": [
+            {
+                "name": "value",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "getStringAtIndex",
+        "outputs": [
+            {
+                "name": "value",
+                "type": "string"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "getCount",
+        "outputs": [
+            {
+                "name": "length",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "index",
+                "type": "uint256"
+            }
+        ],
+        "name": "voteForString",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {
+                "name": "appendMe",
+                "type": "string"
+            }
+        ],
+        "name": "appendString",
+        "outputs": [
+            {
+                "name": "length",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    }
+]);
+
+
+
+
+    var Story = StoryContract.at("0xe7303fa818669d7027233701e3be9febb150983a");
+    console.log(Story);
+
+    function getWholeStory() {
+        data = "";
+
+        stories = Story.getCount();
+        for (i = 0; i < stories; i++) {
+            data = data + "" + Story.getStringAtIndex(i);
+
+
+
+        }
+        return data;
+    }
+
+
+    function getStoriesToVote() {
+        stories = Story.getCount();
+        for (i = 0; i < stories; i++) {
+            data = Story.getStringAtIndex(i);
+
+
+            var bits = document.getElementById('actuals');
+            bits.insertAdjacentHTML('beforeend', "<a class=\"btn-floating btn-small waves-effect waves-light red z-depth-4\"><i class=\"material-icons\">expand_less</i></a><span class=\"new badge z-depth-4\" data-badge-caption=\"votes\">"+ 0+"</span><p> " + data + "</p> <hr/>");
+
+
+
+
+        }
+
+    }
+
+    function appendStory() {
+        story = document.getElementById("textarea1").value;
+        var idstory = "";
+
+
+        node.files.add(new node.types.Buffer(story), (err, filesAdded) => {
+            if (err) {
+                return console.error('Error - ipfs files add', err, res)
+            }
+
+            //filesAdded.forEach((file) => idstory = file.hash);
+
+            console.log(filesAdded[0].hash);
+            idstory = filesAdded[0].hash;
+
+
+        })
+                    console.log(idstory);
+
+        Story.appendString(story);
+
+    }
+
+    console.log(getWholeStory());
+    document.getElementById("story").innerHTML = "<p class=\"flow-text\">" + getWholeStory() + "<p>";
+    getStoriesToVote();
+    </script>
+</body>
+
+</html>
